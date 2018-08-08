@@ -6,27 +6,19 @@ The lines of code as a function of time (per month) in the last 5 years.
 
 ![BEAST 2 core](figures/beast2.svg)
 
-### Markdown
+## BEAST 2 packages
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+TODO
 
-```markdown
-Syntax highlighted code block
 
-# Header 1
-## Header 2
-### Header 3
+# Pipeline
 
-- Bulleted
-- List
+```bash
+cd ~/WorkSpace/beast2stats
+# save code stats to *.txt in tmp-yyyy-mm-dd
+./createStats.sh
 
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+# create *.svg in figures
+Rscript beast2Stats.R
 ```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
