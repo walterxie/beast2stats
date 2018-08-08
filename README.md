@@ -1,8 +1,8 @@
-## Lines of Code
+# Lines of Code
 
 The lines of code as a function of time (per month) in the last 5 years.
 
-### BEAST 2 core
+## BEAST 2 core
 
 ![BEAST 2 core](figures/beast2.svg)
 
