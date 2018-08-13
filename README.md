@@ -1,8 +1,6 @@
-# Lines of Code
-
-The lines of Java code as a function of time (per month) in the last 5 years.
-
 ## BEAST 2 core
+
+The lines of Java code of BEAST 2 core as a function of time (per month) in the last 5 years.
 
 ![BEAST 2 core](figures/beast2.svg)
 
@@ -17,8 +15,10 @@ The number of other packages created by then as a function of time (per month) i
 
 ![packages NoP](figures/other-packages-NoP.svg)
 
+The livetime summary of all BEAST 2 packages are also available from https://compevol.github.io/CBAN/
 
-# Pipeline
+
+## Pipeline
 
 ```bash
 # source code has to be ready before analysis
