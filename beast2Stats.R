@@ -4,8 +4,8 @@ setwd("~/WorkSpace/beast2stats")
 # load source
 source("utils.R")
 
-dataDir = "tmp-2018-08-08"
 package = "beast2"
+dataDir = paste(package, "2018-08-08", sep = "-")
 
 stats.summary <- getAPackageStats(dataDir=dataDir, package=package)
 stats.summary
@@ -22,3 +22,4 @@ p <- ggplot(stats.summary, aes(x=date, y=LOC)) +
 # require X11 for Mac: https://stackoverflow.com/questions/38952427/include-cairo-r-on-a-mac
 ggsave(file=file.path("figures", paste0(package,".svg")), plot=p, width=8, height=10)
 
+write.table(stats.summary, file = "beast2.txt", sep = "\t", quote = F, row.names = F)

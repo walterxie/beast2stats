@@ -78,6 +78,15 @@ p <- ggplot(PKG.summary, aes(x=date, y=x)) +
 
 ggsave(file=file.path("figures", "other-packages-NoP.svg"), plot=p, width=8, height=10)
 
+nrow(LOC.summary)
+nrow(PKG.summary)
+summary <- merge(LOC.summary, PKG.summary, by="date")
+nrow(summary)
+colnames(summary)[2:3] <- c("LoC", "NoP")
+
+write.table(summary, file = "other-packages.txt", sep = "\t", quote = F, row.names = F)
+
+
 
 ######## in development ######## 
 
