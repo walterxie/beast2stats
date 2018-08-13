@@ -9,10 +9,10 @@ WD_PKG="$HOME/WorkSpace"
 # MONTHS = number of months expected - 1, e.g. MONTHS=59 for 5 years
 MONTHS=59
 
-PACKAGE="beast2"
+PACKAGE=$1 #"beast2"
 
 ### init
-TMP="tmp-$(date +%Y-%m-%d)"
+TMP="$PACKAGE-$(date +%Y-%m-%d)"
 cd $WD
 if [[ ! -e $TMP ]]; then
     mkdir $TMP
@@ -36,19 +36,27 @@ fi
 # update
 git pull
 git checkout origin/master
+# date of 1st commit
+COMMIT=`git rev-list --max-parents=0 HEAD`
+DATE_1st_COMMIT=`git show -s --format=%cd --date=short $COMMIT`
 
 # loop through n months before 
-for m_before in $(seq 0 $MONTHS);
-do
+for m_before in $(seq 0 $MONTHS); do
     # e.g. 2018-07-01
-    DATE_CHECK_OUT=`date -v-${m_before}m +%Y-%m-01`
-    # checkout version at the 1st date of a month
-    git checkout `git rev-list -n 1 --before="$DATE_CHECK_OUT 00:00" master`
-    # count the line of java code 
-    git ls-files | grep "\.java$" | xargs wc -l > "$PACKAGE-$DATE_CHECK_OUT.txt"
+    DATE_CHECK_OUT=`date -v-${m_before}m +%Y-%m-01`    
     
-    # mv txt to tmp dir created previously
-    mv "$PACKAGE-$DATE_CHECK_OUT.txt" "$WD/$TMP"
+    if [[ "$DATE_CHECK_OUT" > "$DATE_1st_COMMIT" ]]; then
+      # checkout version at the 1st date of a month
+      git checkout `git rev-list -n 1 --before="$DATE_CHECK_OUT 00:00" master`
+    
+      # count the line of java code 
+      git ls-files | grep "\.java$" | xargs wc -l > "$PACKAGE-$DATE_CHECK_OUT.txt"
+    
+      # mv txt to tmp dir created previously
+      mv "$PACKAGE-$DATE_CHECK_OUT.txt" "$WD/$TMP"      
+    else 
+      echo "Package $PACKAGE has no code on $DATE_CHECK_OUT !"
+    fi
 done
 
 # make sure HEAD back to origin/master
