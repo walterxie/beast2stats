@@ -15,7 +15,7 @@ The number of other packages created by then as a function of time (per month) i
 
 ![packages NoP](figures/other-packages-NoP.svg)
 
-The livetime summary of all BEAST 2 packages are also available from https://compevol.github.io/CBAN/
+The livetime summary of all BEAST 2 packages are also available from BEAST 2 [Package Viewer](https://compevol.github.io/CBAN/)
 
 
 ## Pipeline
