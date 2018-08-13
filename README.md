@@ -6,9 +6,16 @@ The lines of Java code as a function of time (per month) in the last 5 years.
 
 ![BEAST 2 core](figures/beast2.svg)
 
-## BEAST 2 packages
+## Other packages excluding BEAST 2 core
 
-TODO
+The lines of Java code of other packages excluding BEAST 2 core as a function of time (per month) in the last 5 years.
+But there were two packages not included in this summary because the source code was not available by then.
+
+![packages LoC](figures/other-packages-LoC.svg)
+
+The number of other packages created by then as a function of time (per month) in the last 5 years.
+
+![packages NoP](figures/other-packages-NoP.svg)
 
 
 # Pipeline

@@ -22,23 +22,3 @@ p <- ggplot(stats.summary, aes(x=date, y=LOC)) +
 # require X11 for Mac: https://stackoverflow.com/questions/38952427/include-cairo-r-on-a-mac
 ggsave(file=file.path("figures", paste0(package,".svg")), plot=p, width=8, height=10)
 
-
-
-######## in development ######## 
-
-require(reshape2)
-# rm 1st col file name
-stats.melt <- melt(stats.summary[,-1], id='date')
-stats.melt$value<-as.numeric(stats.melt$value)
-
-#create plots
-p <- ggplot(stats.melt, aes(x=date, y=value, group=variable)) +
-  geom_area(aes(fill = variable)) +
-  scale_y_log10("number")
-
-
-
-
-
-
-
