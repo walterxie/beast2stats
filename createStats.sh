@@ -34,8 +34,8 @@ else
 fi
 
 # update
+git checkout master
 git pull
-git checkout origin/master
 # date of 1st commit
 COMMIT=`git rev-list --max-parents=0 HEAD`
 DATE_1st_COMMIT=`git show -s --format=%cd --date=short $COMMIT`
@@ -59,8 +59,8 @@ for m_before in $(seq 0 $MONTHS); do
     fi
 done
 
-# make sure HEAD back to origin/master
-git checkout origin/master
+# make sure HEAD back to master
+git checkout master
 
 # back to WD of all packages
 cd $WD_PKG
