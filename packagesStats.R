@@ -38,7 +38,6 @@ for (pkg.dir in packages$dir) {
   system(cmd)
 }
 
-
 ######### packages stats excluding beast2 
 # work path
 setwd("~/WorkSpace/beast2stats")
@@ -60,7 +59,33 @@ for (pkg.dir in packages$dir) {
 LOC.summary <- aggregate(all.stats$LOC, list(date = all.stats$date), sum)
 PKG.summary <- aggregate(all.stats$LOC, list(date = all.stats$date), length)
 
+nrow(LOC.summary)
+nrow(PKG.summary)
+LoCNoP <- merge(LOC.summary, PKG.summary, by="date")
+colnames(LoCNoP)[2:3] <- c("LoC", "NoP")
+nrow(LoCNoP)
+
+write.table(LoCNoP, file = "other-packages.txt", sep = "\t", quote = F, row.names = F)
+
+######### (3d version)
+require(plotly)
+LoCNoP$id <- seq_len(nrow(LoCNoP))
+ms <- replicate(2, LoCNoP, simplify = F)
+ms[[2]]$NoP <- 0
+m <- group2NA(dplyr::bind_rows(ms), "id")
+
+scene = list(camera = list(eye = list(x = -0.25, y = 1.25, z = 1.25)), 
+             xaxis = list(nticks = 60, tickangle = 270),
+             yaxis = list(title = 'lines of Java code'),
+             zaxis = list(title = 'number of packages'),
+             aspectmode = "manual", aspectratio = list(y=0.8, x=1, z=0.8))
+plot_ly(showlegend = F) %>%
+  add_markers(data = LoCNoP, x = ~date, y = ~LoC, z= ~NoP) %>%
+  add_paths(data = m, x = ~date, y = ~LoC, z= ~NoP) %>% 
+  layout(title = "Other packages excluding BEAST 2 core", scene = scene)
+
 require(ggplot2)
+######### (2d version)
 # bar plot
 p <- ggplot(LOC.summary, aes(x=date, y=x)) +
   geom_bar(stat = "identity", fill="#56B4E9") +
@@ -78,17 +103,10 @@ p <- ggplot(PKG.summary, aes(x=date, y=x)) +
 
 ggsave(file=file.path("figures", "other-packages-NoP.svg"), plot=p, width=8, height=10)
 
-nrow(LOC.summary)
-nrow(PKG.summary)
-summary <- merge(LOC.summary, PKG.summary, by="date")
-nrow(summary)
-colnames(summary)[2:3] <- c("LoC", "NoP")
-
-write.table(summary, file = "other-packages.txt", sep = "\t", quote = F, row.names = F)
-
-
 
 ######## in development ######## 
+LoCNoP$LoC <- as.numeric(as.character(LoCNoP$LoC))
+LoCNoP$NoP <- as.numeric(as.character(LoCNoP$NoP))
 
 require(reshape2)
 # rm 1st col file name
