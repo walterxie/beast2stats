@@ -15,6 +15,12 @@ The number of other packages created by then as a function of time (per month) i
 
 ![packages NoP](figures/other-packages-NoP.svg)
 
+Two figures in one, where the vertical lines were major releases of BEAST 2 core:
+
+![LoC + NoP](figures/other-packages.svg)
+
+The 3D interactive view is also [available](https://walterxie.github.io/beast2stats/3d) using Safari or Chrome.
+
 The livetime summary of all BEAST 2 packages are also available from BEAST 2 [Package Viewer](https://compevol.github.io/CBAN/)
 
 
