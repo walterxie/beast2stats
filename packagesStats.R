@@ -67,20 +67,29 @@ nrow(LoCNoP)
 
 write.table(LoCNoP, file = "other-packages.txt", sep = "\t", quote = F, row.names = F)
 
+### add beast 2 core
+package = "beast2"
+dataDir = paste(package, "2018-08-08", sep = "-")
+
+stats.summary <- getAPackageStats(dataDir=dataDir, package=package)
+stats.summary[1:10,]
+LoCNoP <- merge(LoCNoP, stats.summary[,2:4], by="date")
+colnames(LoCNoP)[4] <- c("LoC.core") # LOC
 
 require(ggplot2)
 ######### (2d version)
 # choose 10000 as transformation
 range(LoCNoP$LoC) / range(LoCNoP$NoP)
 # copied from https://rpubs.com/MarkusLoew/226759
+# group = 1, https://stackoverflow.com/questions/27082601/ggplot2-line-chart-gives-geom-path-each-group-consist-of-only-one-observation
 p <- ggplot(LoCNoP, aes(x = date, group = 1)) + 
-  geom_line(aes(y = LoC, colour = "LoC"))
-# https://stackoverflow.com/questions/27082601/ggplot2-line-chart-gives-geom-path-each-group-consist-of-only-one-observation
-
+  geom_line(aes(y = LoC.core, colour = "LoC core")) +
+  geom_line(aes(y = LoC, colour = "LoC others"))
+  
 # As the secondary axis can only show a one-to-one transformation of the right y-axis, 
 # we’ll have to transform the the data that are shown on the secondary axis
 # adding the relative number of packages, transformed to match roughly the range of lines of code
-p <- p + geom_line(aes(y = NoP*10000, colour = "NoP"))
+p <- p + geom_line(aes(y = NoP*10000, colour = "Packages"))
 
 # now adding the secondary axis, following the example in the help file ?scale_y_continuous
 # and, very important, reverting the above transformation
@@ -89,7 +98,7 @@ p <- p + scale_y_continuous(sec.axis = sec_axis(~./10000, name = "Number of pack
 p <- p + labs(y = "Lines of Java code", x = "Date", colour = "Statistics") +
   #coord_flip() +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 315, hjust = -0.05), legend.position = c(0.9, 0.2)) 
+  theme(axis.text.x = element_text(angle = 315, hjust = -0.05), legend.position = c(0.1, 0.8)) 
 
 # add release dates
 b2releases <- data.frame(version=c("2.5.0","2.4.0","2.3.0","2.2.0","2.1.0","2.0.2"), 
@@ -108,10 +117,11 @@ b2releases$x <- b2releases$x + b2releases$date.numeric
 b2releases
 
 p <- p + geom_vline(xintercept=b2releases$x,linetype=2, colour="grey") +
-  geom_text(data=b2releases, aes(x=(x-1.5), y=rep(380000,length(b2releases$x)),
+  geom_text(data=b2releases, aes(x=(x-1.5), y=rep(400000,length(b2releases$x)),
                 label=version), colour="darkgrey")
 
-ggsave(file=file.path("figures", "other-packages.svg"), plot=p, width=12, height=6)
+ggsave(file=file.path("figures", "beast2-stats.svg"), plot=p, width=12, height=6)
+#ggsave(file=file.path("figures", "other-packages.svg"), plot=p, width=12, height=6)
 
 
 # bar plot

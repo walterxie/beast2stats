@@ -1,15 +1,27 @@
-## BEAST 2 core
+## Basic statistics
 
-The lines of Java code of BEAST 2 core as a function of time (per month) in the last 5 years.
+Do you know how the BEAST 2 project was going in the last 5 years? 
+
+Here is the answer:
+
+![Basic statistics](figures/beast2-stats.svg)
+
+The three lines are:
+1. the lines of Java code of BEAST 2 core as a function of time (per month) in the last 5 years;
+2. the lines of Java code of other packages excluding BEAST 2 core as a function of time (per month) in the last 5 years;
+3. the number of other packages created during the period.
+
+The vertical lines are major releases of BEAST 2 core.
+
+But there were two packages not included in this summary because the source code was not available by then.
+
+## The detail
+
+### BEAST 2 core 
 
 ![BEAST 2 core](figures/beast2.svg)
 
-## Other packages excluding BEAST 2 core
-
-The lines of Java code of other packages excluding BEAST 2 core were plotted as a function of time (per month) in the last 5 years,
-plus the number of other packages created by then. 
-The vertical lines were major releases of BEAST 2 core.
-But there were two packages not included in this summary because the source code was not available by then.
+### Other packages excluding BEAST 2 core
 
 ![LoC + NoP](figures/other-packages.svg)
 
