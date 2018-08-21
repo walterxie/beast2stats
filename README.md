@@ -6,22 +6,22 @@ The lines of Java code of BEAST 2 core as a function of time (per month) in the 
 
 ## Other packages excluding BEAST 2 core
 
-The lines of Java code of other packages excluding BEAST 2 core as a function of time (per month) in the last 5 years.
+The lines of Java code of other packages excluding BEAST 2 core were plotted as a function of time (per month) in the last 5 years,
+plus the number of other packages created by then. 
+The vertical lines were major releases of BEAST 2 core.
 But there were two packages not included in this summary because the source code was not available by then.
-
-![packages LoC](figures/other-packages-LoC.svg)
-
-The number of other packages created by then as a function of time (per month) in the last 5 years.
-
-![packages NoP](figures/other-packages-NoP.svg)
-
-Two figures in one, where the vertical lines were major releases of BEAST 2 core:
 
 ![LoC + NoP](figures/other-packages.svg)
 
 The 3D interactive view is also [available](https://walterxie.github.io/beast2stats/3d) using Safari or Chrome.
 
 The livetime summary of all BEAST 2 packages are also available from BEAST 2 [Package Viewer](https://compevol.github.io/CBAN/)
+
+The bar charts:
+
+![packages LoC](figures/other-packages-LoC.svg)
+
+![packages NoP](figures/other-packages-NoP.svg)
 
 
 ## Pipeline
