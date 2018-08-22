@@ -4,7 +4,7 @@ Do you know how the BEAST 2 project was going in the last 5 years?
 
 Here is the answer:
 
-![Basic statistics](figures/beast2-stats.svg)
+![Basic statistics](figures/beast2-stats-every6m.svg)
 
 The three lines are:
 1. the lines of Java code of BEAST 2 core as a function of time (per month) in the last 5 years;
@@ -13,6 +13,7 @@ The three lines are:
 
 The vertical lines are major releases of BEAST 2 core.
 
+The data was collected at the first day of each month. 
 But there were two packages not included in this summary because the source code was not available by then.
 
 ## The detail
@@ -23,11 +24,17 @@ But there were two packages not included in this summary because the source code
 
 ### Other packages excluding BEAST 2 core
 
+The released packages in [CBAN for BEAST 2.5](https://github.com/CompEvol/CBAN/raw/master/packages2.5.xml) 
+were chosen in this summary.
+The livetime summary of all BEAST 2 packages are also available from BEAST 2 
+[Package Viewer](https://compevol.github.io/CBAN/).
+
+Because the first release date of packages was not easy to access, 
+I used the date of the first commit in each repository in this summary.
+
 ![LoC + NoP](figures/other-packages.svg)
 
 The 3D interactive view is also [available](https://walterxie.github.io/beast2stats/3d) using Safari or Chrome.
-
-The livetime summary of all BEAST 2 packages are also available from BEAST 2 [Package Viewer](https://compevol.github.io/CBAN/)
 
 The bar charts:
 

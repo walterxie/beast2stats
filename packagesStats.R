@@ -95,6 +95,14 @@ p <- p + geom_line(aes(y = NoP*10000, colour = "Packages"))
 # and, very important, reverting the above transformation
 p <- p + scale_y_continuous(sec.axis = sec_axis(~./10000, name = "Number of packages"))
 
+# reduce labels on x-axis to quarterly or 6-monthly using LoCNoP$date
+len.date <- length(LoCNoP$date)
+breaks <- rep("", len.date)
+breaks[seq(1, len.date, by = 6)] <- LoCNoP$date[seq(1, len.date, by = 6)]
+breaks[len.date] <- LoCNoP$date[len.date]
+p <- p + scale_x_discrete(breaks = breaks)
+
+# theme
 p <- p + labs(y = "Lines of Java code", x = "Date", colour = "Statistics") +
   #coord_flip() +
   theme_bw() +
@@ -117,10 +125,11 @@ b2releases$x <- b2releases$x + b2releases$date.numeric
 b2releases
 
 p <- p + geom_vline(xintercept=b2releases$x,linetype=2, colour="grey") +
-  geom_text(data=b2releases, aes(x=(x-1.5), y=rep(400000,length(b2releases$x)),
+  geom_text(data=b2releases, aes(x=(x-1.6), y=rep(400000,length(b2releases$x)),
                 label=version), colour="darkgrey")
 
-ggsave(file=file.path("figures", "beast2-stats.svg"), plot=p, width=12, height=6)
+ggsave(file=file.path("figures", "beast2-stats-every6m.svg"), plot=p, width=10, height=6)
+#ggsave(file=file.path("figures", "beast2-stats.svg"), plot=p, width=12, height=6)
 #ggsave(file=file.path("figures", "other-packages.svg"), plot=p, width=12, height=6)
 
 
