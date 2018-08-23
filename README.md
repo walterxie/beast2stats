@@ -32,15 +32,13 @@ The livetime summary of all BEAST 2 packages are also available from BEAST 2
 Because the first release date of packages was not easy to access, 
 I used the date of the first commit in each repository in this summary.
 
-![LoC + NoP](figures/other-packages.svg)
-
-The 3D interactive view is also [available](https://walterxie.github.io/beast2stats/3d) using Safari or Chrome.
-
 The bar charts:
 
 ![packages LoC](figures/other-packages-LoC.svg)
 
 ![packages NoP](figures/other-packages-NoP.svg)
+
+The 3D interactive view is also [available](https://walterxie.github.io/beast2stats/3d) using Safari or Chrome.
 
 
 ## Pipeline
