@@ -1,25 +1,11 @@
 
+# work path
+setwd("~/WorkSpace/beast2stats")
+# load source
+source("utils.R")
+
 ######### find all packages
-require(xml2)
-cban <- read_xml("https://github.com/CompEvol/CBAN/raw/master/packages2.5.xml")
-
-# get all the <package>s
-pkgs <- xml_find_all(cban, "//package")
-names <- trimws(xml_attr(pkgs, "name"))
-versions <- trimws(xml_attr(pkgs, "version"))
-urls <- trimws(xml_attr(pkgs, "url"))
-
-packages <- data.frame(package=names, version=versions, url=urls, stringsAsFactors = F)
-# pick up latest version 
-packages <- packages[!duplicated(packages$package,fromLast = T), ]
-
-# guess package directory names
-packages$dir <- gsub(".*github.com/(.*)/releases.*", "\\1", packages$url)
-packages$dir <- gsub(".*bitbucket.org/(.*)/raw.*", "\\1", packages$dir)
-# rm any package not knowing source, e.g. STACEY, DENIM
-packages <- packages[!grepl("http|zip", packages$dir),]
-# rm orgization
-packages$dir <- gsub("^.*/", "", packages$dir)
+packages <- findAllUniquePackages("https://github.com/CompEvol/CBAN/raw/master/packages2.5.xml")
 nrow(packages)
 
 # exclude beast2
@@ -38,6 +24,11 @@ for (pkg.dir in packages$dir) {
   system(cmd)
 }
 
+### adjust stats bash
+setwd("~/WorkSpace/beast2stats")
+system("./adjustStats.sh")
+######### finish bash
+
 ######### packages stats excluding beast2 
 # work path
 setwd("~/WorkSpace/beast2stats")
@@ -45,19 +36,53 @@ setwd("~/WorkSpace/beast2stats")
 source("utils.R")
 
 all.stats <- data.frame(stringsAsFactors = F)
-for (pkg.dir in packages$dir) {
+for (i in 1:nrow(packages)) {
+  package <- packages$package[i]
+  pkg.dir <- packages$dir[i]
   dataDir = paste(pkg.dir, "2018-08-13", sep = "-")
   stats.summary <- getAPackageStats(dataDir=dataDir, package=pkg.dir)
   if (nrow(stats.summary) > 0) {
-    stats.summary$package <- pkg.dir
+    stats.summary$package <- package
+    stats.summary$dir <- pkg.dir
     all.stats <- rbind(all.stats, stats.summary)
   } else {
     warning("Packages ", packages , " has no summary log file !")
   }
 }
 
-LOC.summary <- aggregate(all.stats$LOC, list(date = all.stats$date), sum)
-PKG.summary <- aggregate(all.stats$LOC, list(date = all.stats$date), length)
+######### adjust stats
+# pull CBAN XML history
+pkg.his <- getPackagesHistory(xml.dir="CBAN-XML")
+latest.date <- max(pkg.his$date)
+cat("There are ", nrow(pkg.his[pkg.his$date==latest.date, ]), 
+    " packages (exl. beast2) on the latest date ", latest.date, " according to the selected CBAN XML.\n")
+
+# adjust all.stats by pkg.his
+all.stats.adj <- merge(pkg.his[,c("date","dir")], all.stats, by=c("date","dir"))
+#"2018-04-01" "2018-08-01"
+range(all.stats.adj$date)
+
+# add stats on the latest date in pkg.his into all.stats.adj
+all.stats.latest <- all.stats[all.stats$date==max(all.stats$date),]
+all.stats.adj.latest <- merge(pkg.his[pkg.his$date==latest.date,c("date","dir")], 
+                              all.stats.latest[,c("dir","file","LOC","NOF","package")], by="dir")
+
+# filter out earlier packages not exists in pkg.his
+earlier.date <- min(pkg.his$date)
+earlier.pkg.dir <- pkg.his[pkg.his$date==earlier.date, "dir"]
+cat("There are ", length(earlier.pkg.dir), " packages (exl. beast2) on ", 
+    earlier.date, " according to the selected CBAN XML.\n")
+
+all.stats.adj.earlier <- all.stats[all.stats$date < earlier.date & all.stats$dir %in% earlier.pkg.dir,]
+
+# combine
+all.stats.adj <- rbind(all.stats.adj.latest, all.stats.adj, 
+                       all.stats.adj.earlier[,c("date","dir","file","LOC","NOF","package")])
+
+
+######### final stats
+LOC.summary <- aggregate(all.stats.adj$LOC, list(date = all.stats.adj$date), sum)
+PKG.summary <- aggregate(all.stats.adj$LOC, list(date = all.stats.adj$date), length)
 
 nrow(LOC.summary)
 nrow(PKG.summary)

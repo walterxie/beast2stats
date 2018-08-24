@@ -30,7 +30,8 @@ The livetime summary of all BEAST 2 packages are also available from BEAST 2
 [Package Viewer](https://compevol.github.io/CBAN/).
 
 Because the first release date of packages was not easy to access, 
-I used the date of the first commit in each repository in this summary.
+I used the date when the package started to have a LoC (lines of Java code) record, 
+and adjusted the data according to the history of CBAN XML in this summary.
 
 The bar charts:
 
