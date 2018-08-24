@@ -98,7 +98,7 @@ dataDir = paste(package, "2018-08-08", sep = "-")
 
 stats.summary <- getAPackageStats(dataDir=dataDir, package=package)
 stats.summary[1:10,]
-LoCNoP <- merge(LoCNoP, stats.summary[,2:4], by="date")
+LoCNoP <- merge(LoCNoP, stats.summary[,2:4], by="date", all.x = T)
 colnames(LoCNoP)[4] <- c("LoC.core") # LOC
 
 require(ggplot2)
