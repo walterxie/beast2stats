@@ -65,7 +65,7 @@ Rscript beast2Stats.R
 # prepare the CBAN XMLs from different dates to adjust the stats 
 ./adjustStats.sh
 
-# calculate stats and create fig
+# other packages: check out code, calculate stats and create fig
 Rscript packagesStats.R
 
 ```
