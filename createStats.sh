@@ -1,6 +1,10 @@
 #!/bin/bash
+# Use several git commands to pull out the lines of each java class by date
+# and save into a txt file 
 ### tested in MacOS Sierra 10.12.6
 # chmod u+x 
+# author: Walter Xie
+
 
 # dir containing all .txt for analysis
 WD="$HOME/WorkSpace/beast2stats"
@@ -12,8 +16,13 @@ MONTHS=59
 PACKAGE=$1 #"beast2"
 
 ### init
-TMP="$PACKAGE-$(date +%Y-%m-%d)"
 cd $WD
+# store everything in tmp
+if [[ ! -e "tmp" ]]; then
+    mkdir ./tmp
+fi
+
+TMP="tmp/$PACKAGE-$(date +%Y-%m-%d)"
 if [[ ! -e $TMP ]]; then
     mkdir $TMP
     echo "Create $WD/$TMP to store *.txt"
@@ -24,6 +33,7 @@ else
 fi
 
 ### analyse package
+# change to packages folder
 cd $WD_PKG
 if [[ ! -e $PACKAGE ]]; then
     echo "$PACKAGE does not exist in $WD_PKG !"

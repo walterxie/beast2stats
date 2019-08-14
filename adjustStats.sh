@@ -1,14 +1,22 @@
 #!/bin/bash
+# Use the given CBAN XML from different dates to adjust the stats 
+# which makes the plot suiting with the released time-line in CBAN.
+# The XMLs from different dates are then used by beast2Stats.R.
+# Input: $XML and $MONTHS
+#        $CLEAN_FOLDER allows multiple versions of CBAN XML
 ### tested in MacOS Sierra 10.12.6
 # chmod u+x 
+# author: Walter Xie
 
 # dir containing all files for analysis
 WD="$HOME/WorkSpace/beast2stats"
 # released packages
 WD_PKG="$HOME/WorkSpace/CBAN"
 XML="packages2.5.xml"
-# first commit of packages2.5.xml is Mar 21, 2018
-MONTHS=10
+# make months up to the first commit of packages2.5.xml, Mar 21, 2018
+MONTHS=17
+# if false, it will allow multiple versions of CBAN XML
+CLEAN_FOLDER=false
 
 ### init
 TMP="CBAN-XML"
@@ -17,9 +25,12 @@ if [[ ! -e $TMP ]]; then
     mkdir $TMP
     echo "Create $WD/$TMP to store *.xml"
 else 
-    cd $TMP
-    echo "Clean *.xml in $WD/$TMP ..."
-    rm *.xml
+    # rm all XML
+    if [ "$CLEAN_FOLDER" = true ] ; then
+		cd $TMP
+		echo "Clean *.xml in $WD/$TMP ..."
+		rm *.xml
+    fi
 fi
 
 ### cp xmls

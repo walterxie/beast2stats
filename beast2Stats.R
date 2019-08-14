@@ -1,11 +1,11 @@
-
+# author: Walter Xie
 # work path
 setwd("~/WorkSpace/beast2stats")
 # load source
 source("utils.R")
 
 package = "beast2"
-dataDir = paste(package, "2018-08-08", sep = "-")
+dataDir = file.path("tmp", paste(package, "2019-08-14", sep = "-"))
 
 stats.summary <- getAPackageStats(dataDir=dataDir, package=package)
 stats.summary

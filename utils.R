@@ -1,4 +1,4 @@
-
+# author: Walter Xie
 # setwd("~/WorkSpace/beast2stats")
 
 # get data frame of stats summary given a package-*.txt files in "dataDir" 
@@ -63,8 +63,10 @@ findAllUniquePackages <- function(xml.full.path) {
   names <- trimws(xml_attr(pkgs, "name"))
   versions <- trimws(xml_attr(pkgs, "version"))
   urls <- trimws(xml_attr(pkgs, "url"))
+  projectURLs <- trimws(xml_attr(pkgs, "projectURL"))
+  description <- trimws(xml_attr(pkgs, "description"))
   
-  packages <- data.frame(package=names, version=versions, url=urls, stringsAsFactors = F)
+  packages <- data.frame(package=names, version=versions, url=urls, projurl=projectURLs, description=description, stringsAsFactors = F)
   # pick up latest version 
   packages <- packages[!duplicated(packages$package,fromLast = T), ]
   
@@ -80,8 +82,20 @@ findAllUniquePackages <- function(xml.full.path) {
   return(packages)
 }
 
+# correct url for git clone
+correctURL <- function(packages) {
+   packages$projurl <- gsub("^.*beast2.org.*", "https://github.com/CompEvol/beast2/", packages$projurl)
+   packages$projurl <- gsub("^.*tgvaughan.github.io/bacter.*", "https://github.com/tgvaughan/bacter/", packages$projurl)
+   packages$projurl <- gsub("^.*tgvaughan.github.io/EpiInf.*", "https://github.com/tgvaughan/epiinf/", packages$projurl)
+   packages$projurl <- gsub("^.*tgvaughan.github.io/MASTER.*", "https://github.com/tgvaughan/MASTER/", packages$projurl)
+   packages$projurl <- gsub("^.*tgvaughan.github.io/MultiTypeTree.*", "https://github.com/tgvaughan/MultiTypeTree/", packages$projurl)
+   packages$projurl <- gsub("^.*taming-the-beast.org/tutorials/Reassortment-Tutorial.*", "https:/github.com/nicfel/CoalRe/", packages$projurl)
+   return(packages)
+}
+
+
 # earliest date is min(pkg.his$date)
-# return: date, package, version 
+# return: "date","package","version","dir","xml" 
 getPackagesHistory <- function(xml.dir="CBAN-XML") {
   if (!dir.exists(xml.dir)) 
     stop("Cannot find CBAN XML folder : ", xml.dir, " in working path ", getwd(), " !")
@@ -97,19 +111,46 @@ getPackagesHistory <- function(xml.dir="CBAN-XML") {
       stop("Cannot find CBAN XML : ", f, " !")
     
     date <- gsub("^([0-9]+)-([0-9]+)-([0-9]+)-.*.xml", "\\1-\\2-\\3", file)
+    xml <- gsub("^([0-9]+)-([0-9]+)-([0-9]+)-(.*).xml", "\\4.xml", file)
     
     packages <- findAllUniquePackages(f)
     packages$date <- date
+    packages$xml <- xml
     
     # exclude beast2
-    packages <- packages[packages$package != "BEAST", c("date","package","version","dir")]
-    cat("Find ", nrow(packages), " packages exclude beast2 on ", date, ".\n")
+    packages <- packages[packages$package != "BEAST", c("date","package","version","dir","xml")]
+    cat("Find ", nrow(packages), " packages exclude beast2 on ", date, " from ", xml, ".\n")
     
-    pkg.his <- rbind(packages, pkg.his)
+    # if date exists for multiple versions (e.g. 2.5.xml, 2.6 xml)
+    if (date %in% pkg.his$date) {
+       pre.version.pkg <- nrow(pkg.his[pkg.his$date == date, ])
+       # packages >= prevous version
+       if (nrow(packages) >= pre.version.pkg) {
+         # rm prevous version and add last version
+         pkg.his <- pkg.his[pkg.his$date != date, ]
+         pkg.his <- rbind(packages, pkg.his)
+         
+         cat("Remove ", pre.version.pkg, " packages in ", unique(pkg.his[pkg.his$date == date, "xml"]), 
+             " add ", nrow(packages),  " packages in ", xml, " on ", date, ".\n")
+       } else {
+         cat("Keep ", pre.version.pkg, " packages in ", unique(pkg.his[pkg.his$date == date, "xml"]), 
+             " ignore ", nrow(packages),  " packages in ", xml, " on ", date, ".\n")
+       }   
+    } else {
+      pkg.his <- rbind(packages, pkg.his)    
+    }   
+    
   }
   return(pkg.his)
 }
 
+# if using multiple versions (e.g. 2.5.xml, 2.6 xml), 
+# use last version only if its packages >= prevous version
+correctPackageHistory <- function(pkg.his) {
+
+
+
+}
 
 # adjust stats because of package commit dates not equivalent to package released dates in CBAN
 adjustPackageStats <- function(all.stats.pre, pkg.his) {

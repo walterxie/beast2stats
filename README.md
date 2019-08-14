@@ -24,7 +24,7 @@ But there were two packages not included in this summary because the source code
 
 ### Other packages excluding BEAST 2 core
 
-The released packages in [CBAN for BEAST 2.5](https://github.com/CompEvol/CBAN/raw/master/packages2.5.xml) 
+The released packages in [CBAN for BEAST 2.6](https://github.com/CompEvol/CBAN/raw/master/packages2.6.xml) 
 were chosen in this summary.
 The livetime summary of all BEAST 2 packages are also available from BEAST 2 
 [Package Viewer](https://compevol.github.io/CBAN/).
@@ -61,5 +61,12 @@ PACKAGE="beast2"
 
 # create *.svg in figures
 Rscript beast2Stats.R
+
+# prepare the CBAN XMLs from different dates to adjust the stats 
+./adjustStats.sh
+
+# calculate stats and create fig
+Rscript packagesStats.R
+
 ```
 

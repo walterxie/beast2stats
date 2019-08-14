@@ -5,24 +5,53 @@ setwd("~/WorkSpace/beast2stats")
 source("utils.R")
 
 ######### find all packages
-packages <- findAllUniquePackages("https://github.com/CompEvol/CBAN/raw/master/packages2.5.xml")
+packages <- findAllUniquePackages("https://github.com/CompEvol/CBAN/raw/master/packages2.6.xml")
+packages <- correctURL(packages)
 nrow(packages)
+packages[1,]
 
 # exclude beast2
-packages <- packages[packages$dir != "beast2", c("package","version","dir")]
+packages <- packages[packages$dir != "beast2", c("package","version","dir","projurl")]
 nrow(packages)
 
 
 ######### run bash
-for (pkg.dir in packages$dir) {
+
+### run createStats.sh
+for (i in 1:nrow(packages)) {
+  pkg.dir = packages[i, "dir"]
   setwd("~/WorkSpace")
-  if (!dir.exists(pkg.dir)) 
-    stop("Cannot find package dir : ", pkg.dir, " in ", getwd(), " !")
+  # if folder not exist, git clone it
+  if (!dir.exists(pkg.dir)) {
+     projurl = packages[i, "projurl"]
+     warning("Cannot find package dir : ", pkg.dir, " in ", getwd(), " !\n", "check out ", projurl)
+     cmd <- paste("git clone ", projurl)
+     system(cmd)
+  }
   
   setwd("~/WorkSpace/beast2stats")
   cmd <- paste("./createStats.sh ", pkg.dir)
   system(cmd)
 }
+
+stats.date=system("date +%Y-%m-%d", intern = TRUE)
+# such as 2019-08-14
+cat("stats.date = ", stats.date, ".\n\n")
+# author: Walter Xie
+### check if createStats.sh works
+err = c()
+for (pkg.dir in packages$dir) {
+  setwd("~/WorkSpace/beast2stats/tmp")
+  # such as beast2-2019-08-14
+  dir.name = paste0(pkg.dir, "-", stats.date)
+  if (!dir.exists(dir.name) || length(list.files(dir.name)) < 1)
+    err = c(err, dir.name)
+}  
+cat("Tested", nrow(packages), "packages: \n")
+if (length(err) > 0) 
+  stop("createStats.sh failed in ", paste(err, collapse=", "), " ! ")
+cat("All passed.\n")
+
 
 ### adjust stats bash
 setwd("~/WorkSpace/beast2stats")
@@ -39,7 +68,7 @@ all.stats <- data.frame(stringsAsFactors = F)
 for (i in 1:nrow(packages)) {
   package <- packages$package[i]
   pkg.dir <- packages$dir[i]
-  dataDir = paste(pkg.dir, "2018-08-13", sep = "-")
+  dataDir = file.path("tmp", paste(pkg.dir, stats.date, sep = "-"))
   stats.summary <- getAPackageStats(dataDir=dataDir, package=pkg.dir)
   if (nrow(stats.summary) > 0) {
     stats.summary$package <- package
@@ -49,34 +78,56 @@ for (i in 1:nrow(packages)) {
     warning("Packages ", packages , " has no summary log file !")
   }
 }
+all.stats[1:5,]
+# no adjust
+LOC <- aggregate(all.stats$LOC, list(date = all.stats$date), sum)
+PKG <- aggregate(all.stats$LOC, list(date = all.stats$date), length)
+LOC.PKG <- merge(LOC, PKG, by="date")
+colnames(LOC.PKG )[2:3] <- c("LoC", "NoP")
 
-######### adjust stats
+# check the plot
+require(ggplot2)
+ggplot(LOC.PKG, aes(x = date, group = 1)) + 
+  geom_line(aes(y = LoC, colour = "LoC others")) + 
+  geom_line(aes(y = NoP*10000, colour = "Packages")) + 
+  scale_y_continuous(sec.axis = sec_axis(~./10000, name = "Number of packages")) + 
+  labs(y = "Lines of Java code", x = "Date", colour = "Statistics") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 315, hjust = -0.05), legend.position = c(0.1, 0.8)) 
+  
+
+######### adjust stats to make the plot suiting with the released time-line in CBAN
 # pull CBAN XML history
 pkg.his <- getPackagesHistory(xml.dir="CBAN-XML")
-latest.date <- max(pkg.his$date)
-cat("There are ", nrow(pkg.his[pkg.his$date==latest.date, ]), 
-    " packages (exl. beast2) on the latest date ", latest.date, " according to the selected CBAN XML.\n")
+pkg.his[1,]
+aggregate(package ~ xml + date, pkg.his, length)
+ 
+last.date <- max(pkg.his$date)
+last.xml <- max(pkg.his$xml)
+cat("There are ", nrow(pkg.his[pkg.his$date==last.date & pkg.his$xml==last.xml, ]), 
+    " packages (exl. beast2) on the last date ", last.date, " according to ", last.xml, ".\n")
 
 # adjust all.stats by pkg.his
 all.stats.adj <- merge(pkg.his[,c("date","dir")], all.stats, by=c("date","dir"))
 #"2018-04-01" "2018-08-01"
 range(all.stats.adj$date)
 
-# add stats on the latest date in pkg.his into all.stats.adj
-all.stats.latest <- all.stats[all.stats$date==max(all.stats$date),]
-all.stats.adj.latest <- merge(pkg.his[pkg.his$date==latest.date,c("date","dir")], 
-                              all.stats.latest[,c("dir","file","LOC","NOF","package")], by="dir")
+# add stats on the last date in pkg.his into all.stats.adj
+all.stats.last <- all.stats[all.stats$date==max(all.stats$date),]
+all.stats.adj.last <- merge(pkg.his[pkg.his$date==last.date,c("date","dir")], 
+                              all.stats.last[,c("dir","file","LOC","NOF","package")], by="dir")
 
 # filter out earlier packages not exists in pkg.his
 earlier.date <- min(pkg.his$date)
 earlier.pkg.dir <- pkg.his[pkg.his$date==earlier.date, "dir"]
+earlier.xml <- min(pkg.his$xml)
 cat("There are ", length(earlier.pkg.dir), " packages (exl. beast2) on ", 
-    earlier.date, " according to the selected CBAN XML.\n")
+    earlier.date, " according to ", earlier.xml, ".\n")
 
 all.stats.adj.earlier <- all.stats[all.stats$date < earlier.date & all.stats$dir %in% earlier.pkg.dir,]
 
 # combine
-all.stats.adj <- rbind(all.stats.adj.latest, all.stats.adj, 
+all.stats.adj <- rbind(all.stats.adj.last, all.stats.adj, 
                        all.stats.adj.earlier[,c("date","dir","file","LOC","NOF","package")])
 
 
@@ -89,12 +140,13 @@ nrow(PKG.summary)
 LoCNoP <- merge(LOC.summary, PKG.summary, by="date")
 colnames(LoCNoP)[2:3] <- c("LoC", "NoP")
 nrow(LoCNoP)
+LoCNoP
 
 write.table(LoCNoP, file = "other-packages.txt", sep = "\t", quote = F, row.names = F)
 
 ### add beast 2 core
 package = "beast2"
-dataDir = paste(package, "2018-08-08", sep = "-")
+dataDir = file.path("tmp", paste(package, stats.date, sep = "-"))
 
 stats.summary <- getAPackageStats(dataDir=dataDir, package=package)
 stats.summary[1:10,]
@@ -134,8 +186,8 @@ p <- p + labs(y = "Lines of Java code", x = "Date", colour = "Statistics") +
   theme(axis.text.x = element_text(angle = 315, hjust = -0.05), legend.position = c(0.1, 0.8)) 
 
 # add release dates
-b2releases <- data.frame(version=c("2.5.0","2.4.0","2.3.0","2.2.0","2.1.0","2.0.2"), 
-              date=c("2018-03-15","2016-02-24","2015-05-14","2015-01-27","2014-01-28","2013-04-16"))
+b2releases <- data.frame(version=c("2.6.0","2.5.0","2.4.0","2.3.0","2.2.0","2.1.0","2.0.2"), 
+              date=c("2019-08-01","2018-03-15","2016-02-24","2015-05-14","2015-01-27","2014-01-28","2013-04-16"))
 b2releases$version <- paste0("v", b2releases$version)
 b2releases$month <- gsub("^(.*)-(.*)-(.*)$", "\\1-\\2", b2releases$date) 
 LoCNoP$month <- gsub("^(.*)-(.*)-(.*)$", "\\1-\\2", LoCNoP$date) 
@@ -149,8 +201,11 @@ b2releases <- b2releases[!is.na(b2releases$x),]
 b2releases$x <- b2releases$x + b2releases$date.numeric
 b2releases
 
+# guess txt y
+y.max = round(max(LoCNoP$LoC), digits = -5)
+
 p <- p + geom_vline(xintercept=b2releases$x,linetype=2, colour="grey") +
-  geom_text(data=b2releases, aes(x=(x-1.6), y=rep(400000,length(b2releases$x)),
+  geom_text(data=b2releases, aes(x=(x-1.6), y=rep(y.max,length(b2releases$x)),
                 label=version), colour="darkgrey")
 
 ggsave(file=file.path("figures", "beast2-stats-every6m.svg"), plot=p, width=10, height=6)
