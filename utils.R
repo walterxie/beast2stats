@@ -70,26 +70,38 @@ findAllUniquePackages <- function(xml.full.path) {
   # pick up latest version 
   packages <- packages[!duplicated(packages$package,fromLast = T), ]
   
-  # guess package directory names
-  packages$dir <- gsub(".*github.com/(.*)/releases.*", "\\1", packages$url)
-  packages$dir <- gsub(".*bitbucket.org/(.*)/raw.*", "\\1", packages$dir)
+  # find the source url for git
+  packages$srcurl <- packages$projurl
+  packages <- correctSrcURL(packages) 
+  
   # rm any package not knowing source, e.g. STACEY, DENIM
-  packages <- packages[!grepl("http|zip", packages$dir),]
-  # rm orgization
-  packages$dir <- gsub("^.*/", "", packages$dir)
+  rmpkgurl <- packages[!grepl("github|bitbucket", packages$srcurl),"srcurl"]
+  cat("Remove", length(rmpkgurl), "packages : ", 
+      paste(rmpkgurl, collapse = ", "), ", which not providing source.\n")
+  # pick up pkgs having source url
+  packages <- packages[grepl("github|bitbucket", packages$srcurl),]
+  
+  # guess package directory names
+  packages$dir <- gsub("^.+/(.*)/$", "\\1", packages$srcurl)
+  packages$dir <- gsub("^.+/(.*)$", "\\1", packages$dir)
   
   cat("Find ", nrow(packages), " unique packages from ", xml.full.path, ".\n")
-  return(packages)
+  return(packages[with(packages, order(package, dir)), ])
 }
 
 # correct url for git clone
-correctURL <- function(packages) {
-   packages$projurl <- gsub("^.*beast2.org.*", "https://github.com/CompEvol/beast2/", packages$projurl)
-   packages$projurl <- gsub("^.*tgvaughan.github.io/bacter.*", "https://github.com/tgvaughan/bacter/", packages$projurl)
-   packages$projurl <- gsub("^.*tgvaughan.github.io/EpiInf.*", "https://github.com/tgvaughan/epiinf/", packages$projurl)
-   packages$projurl <- gsub("^.*tgvaughan.github.io/MASTER.*", "https://github.com/tgvaughan/MASTER/", packages$projurl)
-   packages$projurl <- gsub("^.*tgvaughan.github.io/MultiTypeTree.*", "https://github.com/tgvaughan/MultiTypeTree/", packages$projurl)
-   packages$projurl <- gsub("^.*taming-the-beast.org/tutorials/Reassortment-Tutorial.*", "https:/github.com/nicfel/CoalRe/", packages$projurl)
+correctSrcURL <- function(packages) {
+   packages$srcurl <- gsub("^.*beast2.org/snapp/.*", "https://github.com/BEAST2-Dev/SNAPP/", packages$srcurl)
+   packages$srcurl <- gsub("^.*beast2.org.*", "https://github.com/CompEvol/beast2/", packages$srcurl)
+   packages$srcurl <- gsub("^.*tgvaughan.github.io/bacter.*", "https://github.com/tgvaughan/bacter/", packages$srcurl)
+   packages$srcurl <- gsub("^.*tgvaughan.github.io/EpiInf.*", "https://github.com/tgvaughan/epiinf/", packages$srcurl)
+   packages$srcurl <- gsub("^.*tgvaughan.github.io/MASTER.*", "https://github.com/tgvaughan/MASTER/", packages$srcurl)
+   packages$srcurl <- gsub("^.*tgvaughan.github.io/MultiTypeTree.*", "https://github.com/tgvaughan/MultiTypeTree/", packages$srcurl)
+   packages$srcurl <- gsub("^.*taming-the-beast.org/tutorials/Mascot.*", "https:/github.com/nicfel/Mascot/", packages$srcurl)
+   packages$srcurl <- gsub("^.*taming-the-beast.org/tutorials/Reassortment.*", "https:/github.com/nicfel/CoalRe/", packages$srcurl)
+   packages$srcurl <- gsub("^.*bModelTest/wiki.*", "https://github.com/BEAST2-Dev/bModelTest", packages$srcurl)
+   packages$srcurl <- gsub("^.*nested-sampling/wiki.*", "https://github.com/BEAST2-Dev/nested-sampling", packages$srcurl)
+   packages$srcurl <- gsub("^.*MGSM/wiki.*", "https://github.com/BEAST2-Dev/MGSM", packages$srcurl)
    return(packages)
 }
 

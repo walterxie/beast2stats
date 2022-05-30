@@ -56,14 +56,11 @@ git clone https://github.com/walterxie/beast2stats.git
 # start pipeline
 cd ~/WorkSpace/beast2stats
 # save code stats to *.txt in tmp-yyyy-mm-dd
-PACKAGE="beast2"
-./createStats.sh $PACKAGE
+PACKAGE_DIR="beast2"
+./createStats.sh $PACKAGE_DIR
 
 # create *.svg in figures
 Rscript beast2Stats.R
-
-# prepare the CBAN XMLs from different dates to adjust the stats 
-./adjustStats.sh
 
 # other packages: check out code, calculate stats and create fig
 Rscript packagesStats.R

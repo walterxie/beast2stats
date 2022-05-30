@@ -5,15 +5,14 @@ setwd("~/WorkSpace/beast2stats")
 source("utils.R")
 
 ######### find all packages
-packages <- findAllUniquePackages("https://github.com/CompEvol/CBAN/raw/master/packages2.6.xml")
-packages <- correctURL(packages)
+packages <- findAllUniquePackages(xml.full.path="https://github.com/CompEvol/CBAN/raw/master/packages2.6.xml")
+packages$package
 nrow(packages)
 packages[1,]
 
 # exclude beast2
-packages <- packages[packages$dir != "beast2", c("package","version","dir","projurl")]
+packages <- packages[packages$dir != "beast2", c("package","version","dir","srcurl")]
 nrow(packages)
-
 
 ######### run bash
 
@@ -23,9 +22,9 @@ for (i in 1:nrow(packages)) {
   setwd("~/WorkSpace")
   # if folder not exist, git clone it
   if (!dir.exists(pkg.dir)) {
-     projurl = packages[i, "projurl"]
-     warning("Cannot find package dir : ", pkg.dir, " in ", getwd(), " !\n", "check out ", projurl)
-     cmd <- paste("git clone ", projurl)
+    srcurl = packages[i, "srcurl"]
+     warning("Cannot find package dir : ", pkg.dir, " in ", getwd(), " !\n", "check out ", srcurl)
+     cmd <- paste("git clone ", srcurl)
      system(cmd)
   }
   
@@ -55,7 +54,9 @@ cat("All passed.\n")
 
 ### adjust stats bash
 setwd("~/WorkSpace/beast2stats")
-system("./adjustStats.sh")
+# pull out packages2.?.xml at diff months
+system("./adjustStats.sh packages2.5.xml")
+system("./adjustStats.sh packages2.6.xml")
 ######### finish bash
 
 ######### packages stats excluding beast2 
@@ -78,6 +79,7 @@ for (i in 1:nrow(packages)) {
     warning("Packages ", packages , " has no summary log file !")
   }
 }
+stopifnot(i==nrow(packages))
 all.stats[1:5,]
 # no adjust
 LOC <- aggregate(all.stats$LOC, list(date = all.stats$date), sum)
@@ -177,6 +179,7 @@ len.date <- length(LoCNoP$date)
 breaks <- rep("", len.date)
 breaks[seq(1, len.date, by = 6)] <- LoCNoP$date[seq(1, len.date, by = 6)]
 breaks[len.date] <- LoCNoP$date[len.date]
+breaks[len.date-1] = ""
 p <- p + scale_x_discrete(breaks = breaks)
 
 # theme
@@ -186,8 +189,8 @@ p <- p + labs(y = "Lines of Java code", x = "Date", colour = "Statistics") +
   theme(axis.text.x = element_text(angle = 315, hjust = -0.05), legend.position = c(0.1, 0.8)) 
 
 # add release dates
-b2releases <- data.frame(version=c("2.6.0","2.5.0","2.4.0","2.3.0","2.2.0","2.1.0","2.0.2"), 
-              date=c("2019-08-01","2018-03-15","2016-02-24","2015-05-14","2015-01-27","2014-01-28","2013-04-16"))
+b2releases <- data.frame(version=c("2.6.7","2.6.0","2.5.0","2.4.0","2.3.0","2.2.0","2.1.0","2.0.2"), 
+              date=c("2022-03-07","2019-08-01","2018-03-15","2016-02-24","2015-05-14","2015-01-27","2014-01-28","2013-04-16"))
 b2releases$version <- paste0("v", b2releases$version)
 b2releases$month <- gsub("^(.*)-(.*)-(.*)$", "\\1-\\2", b2releases$date) 
 LoCNoP$month <- gsub("^(.*)-(.*)-(.*)$", "\\1-\\2", LoCNoP$date) 

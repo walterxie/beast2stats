@@ -10,10 +10,11 @@
 WD="$HOME/WorkSpace/beast2stats"
 # dir containing all checked out packages
 WD_PKG="$HOME/WorkSpace"
-# MONTHS = number of months expected - 1, e.g. MONTHS=59 for 5 years
-MONTHS=59
+# MONTHS + 1 = number of expected months 
+# Sep 2014 to May 2022 ~ 
+MONTHS=93
 
-PACKAGE=$1 #"beast2"
+PACKAGE=$1 # Pkg dir, e.g. "beast2"
 
 ### init
 cd $WD

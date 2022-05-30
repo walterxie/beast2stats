@@ -5,7 +5,7 @@ setwd("~/WorkSpace/beast2stats")
 source("utils.R")
 
 package = "beast2"
-dataDir = file.path("tmp", paste(package, "2019-08-14", sep = "-"))
+dataDir = file.path("tmp", paste(package, "2022-05-30", sep = "-"))
 
 stats.summary <- getAPackageStats(dataDir=dataDir, package=package)
 stats.summary

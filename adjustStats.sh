@@ -12,9 +12,9 @@
 WD="$HOME/WorkSpace/beast2stats"
 # released packages
 WD_PKG="$HOME/WorkSpace/CBAN"
-XML="packages2.5.xml"
+XML=$1 # e.g. "packages2.5.xml" or "packages2.6.xml"
 # make months up to the first commit of packages2.5.xml, Mar 21, 2018
-MONTHS=17
+MONTHS=49
 # if false, it will allow multiple versions of CBAN XML
 CLEAN_FOLDER=false
 
