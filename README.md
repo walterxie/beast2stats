@@ -1,14 +1,14 @@
 ## Basic statistics
 
-Do you know how the BEAST 2 project was going in the last 5 years? 
+Do you know how the BEAST 2 project was going since 2014? 
 
 Here is the answer:
 
 ![Basic statistics](figures/beast2-stats-every6m.svg)
 
 The three lines are:
-1. the lines of Java code of BEAST 2 core as a function of time (per month) in the last 5 years;
-2. the lines of Java code of other packages excluding BEAST 2 core as a function of time (per month) in the last 5 years;
+1. the lines of Java code of BEAST 2 core as a function of time (per month) since 2014;
+2. the lines of Java code of other packages excluding BEAST 2 core as a function of time (per month) since 2014;
 3. the number of other packages created during the period.
 
 The vertical lines are major releases of BEAST 2 core.
